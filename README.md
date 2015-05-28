@@ -68,13 +68,13 @@ Configuration is via a simple key-value text file placed in the following locati
 
 Windows:
 
-* %USERPROFILE%\git-lfs-ssh-serve.ini
-* %PROGRAMDATA%\git-lfs\git-lfs-ssh-serve.ini
+* %USERPROFILE%\git-lfs-serve.ini
+* %PROGRAMDATA%\git-lfs\git-lfs-serve.ini
 
 Linux/Mac:
 
-* ~/.git-lfs-ssh-serve
-* /etc/git-lfs-ssh-serve.conf
+* ~/.git-lfs-serve
+* /etc/git-lfs-serve.conf
 
 Usually you'll want to use a global config file to avoid each user having to
 configure it themselves, unless you use a generic user name for all connections
