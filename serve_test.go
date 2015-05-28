@@ -102,9 +102,33 @@ func TestServe(t *testing.T) {
 	assert.Equal(t, testcontent, downloadedbytes)
 
 	// Now test safe fail state with DownloadCheck
-	obj, wrerr = ctx.DownloadCheck("99999999999999999999999999999999999")
+	garbageoid := "99999999999999999999999999999999999"
+	obj, wrerr = ctx.DownloadCheck(garbageoid)
 	assert.Equal(t, (*lfs.ObjectResource)(nil), obj)
 	assert.NotEqual(t, (*lfs.WrappedError)(nil), wrerr)
+
+	// Now batch test
+	var inobjs []*lfs.ObjectResource
+	inobjs = append(inobjs, &lfs.ObjectResource{Oid: testoid})
+	inobjs = append(inobjs, &lfs.ObjectResource{Oid: garbageoid, Size: 500})
+	retobjs, wrerr := ctx.Batch(inobjs)
+	assert.Equal(t, (*lfs.WrappedError)(nil), wrerr)
+	assert.Equal(t, 2, len(retobjs))
+	for i, ro := range retobjs {
+		switch i {
+		case 0:
+			assert.Equal(t, testoid, ro.Oid)
+			assert.Equal(t, testcontentsz, ro.Size)
+			assert.Equal(t, true, ro.CanDownload())
+			assert.Equal(t, false, ro.CanUpload())
+		case 1:
+			assert.Equal(t, garbageoid, ro.Oid)
+			assert.Equal(t, int64(500), ro.Size)
+			assert.Equal(t, false, ro.CanDownload())
+			assert.Equal(t, true, ro.CanUpload())
+		}
+	}
+
 	ctx.Close()
 
 }
