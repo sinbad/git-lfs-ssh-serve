@@ -105,8 +105,9 @@ func downloadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Co
 	s, err := os.Stat(filename)
 	if err == nil {
 		// file exists
-		// If file doesn't exist, we just return 0 size (no error)
 		result.Size = s.Size()
+	} else {
+		result.Size = -1
 	}
 	resp, err := lfs.NewJsonResponse(req.Id, result)
 	if err != nil {
