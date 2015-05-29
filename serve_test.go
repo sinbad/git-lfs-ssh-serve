@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/github/git-lfs/lfs"
+	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/github/git-lfs/lfs"
 	"io"
 	"net"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/bmizerany/assert"
+	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/bmizerany/assert"
 )
 
 // Here we use a real client SSH context to talk to the real Serve() function

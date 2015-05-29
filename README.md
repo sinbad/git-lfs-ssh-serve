@@ -13,9 +13,6 @@ provide a reference implementation of a pure SSH LFS server on your own host.
 
 ## Installation ##
 
-TODO: sort out dependencies. Not done yet & left manual since required changes
-to Git LFS aren't accepted.
-
 Just build the binary git-lfs-ssh-serve using 'go build' or cross-compile using
 gox (https://github.com/mitchellh/gox). Install this on your server, on the path
 of any SSH user you need to have access.

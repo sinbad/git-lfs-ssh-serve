@@ -1,0 +1,45 @@
+{
+	"ImportPath": "github.com/sinbad/git-lfs-ssh-serve",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/bmizerany/assert",
+			"Comment": "release.r60-6-ge17e998",
+			"Rev": "e17e99893cb6509f428e1728281c2ad60a6b31e3"
+		},
+		{
+			"ImportPath": "github.com/github/git-lfs/git",
+			"Comment": "v0.5.1-tracing-231-g326f8db",
+			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+		},
+		{
+			"ImportPath": "github.com/github/git-lfs/lfs",
+			"Comment": "v0.5.1-tracing-231-g326f8db",
+			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+		},
+		{
+			"ImportPath": "github.com/github/git-lfs/vendor/_nuts/github.com/cheggaaa/pb",
+			"Comment": "v0.5.1-tracing-231-g326f8db",
+			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+		},
+		{
+			"ImportPath": "github.com/github/git-lfs/vendor/_nuts/github.com/rubyist/tracerx",
+			"Comment": "v0.5.1-tracing-231-g326f8db",
+			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+		},
+		{
+			"ImportPath": "github.com/github/git-lfs/vendor/_nuts/github.com/technoweenie/go-contentaddressable",
+			"Comment": "v0.5.1-tracing-231-g326f8db",
+			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+		},
+		{
+			"ImportPath": "github.com/kr/pretty",
+			"Comment": "go.weekly.2011-12-22-27-ge6ac2fc",
+			"Rev": "e6ac2fc51e89a3249e82157fa0bb7a18ef9dd5bb"
+		},
+		{
+			"ImportPath": "github.com/kr/text",
+			"Rev": "e373e137fafd8abd480af49182dea0513914adb4"
+		}
+	]
+}
