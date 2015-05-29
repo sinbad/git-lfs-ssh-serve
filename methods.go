@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/github/git-lfs/lfs"
-	"github.com/technoweenie/go-contentaddressable"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -20,17 +20,10 @@ func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, p
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Error determining media path. %v", err))
 	}
-	// contentaddressable fails hard when file already exists, let's be nicer
 	startresult := lfs.UploadResponse{}
 	_, staterr := os.Stat(filename)
-	var mediaFile *contentaddressable.File
 	if staterr != nil && os.IsNotExist(staterr) {
 		startresult.OkToSend = true
-		// Create file to write to - do this early to allow for fail states
-		mediaFile, err = contentaddressable.NewFile(filename)
-		if err != nil {
-			return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Error opening media file buffer. %v", err))
-		}
 	}
 	// Send start response immediately
 	resp, err := lfs.NewJsonResponse(req.Id, startresult)
@@ -46,23 +39,62 @@ func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, p
 	}
 
 	// Next from client should be byte stream of exactly the stated number of bytes
-	n, err := io.CopyN(mediaFile, in, upreq.Size)
-	if err == nil {
-		err = mediaFile.Accept()
-	}
-	mediaFile.Close()
+	// Now open temp file to write to
+	tempf, err := ioutil.TempFile("", "tempupload")
+	defer os.Remove(tempf.Name())
+	defer tempf.Close()
+	n, err := io.CopyN(tempf, in, upreq.Size)
 	if err != nil {
-		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Problem uploading data: %v", err.Error()))
+		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Unable to read data: %v", err.Error()))
 	} else if n != upreq.Size {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Received wrong number of bytes %d (expected %d)", n, upreq.Size))
 	}
 
 	receivedresult := lfs.UploadCompleteResponse{}
 	receivedresult.ReceivedOk = true
+	var receiveerr string
+	// force close now before defer so we can copy
+	err = tempf.Close()
+	if err != nil {
+		receivedresult.ReceivedOk = false
+		receiveerr = fmt.Sprintf("Error when closing temp file: %v", err.Error())
+	} else {
+		// ensure final directory exists
+		ensureDirExists(filepath.Dir(filename), config)
+		// Move temp file to final location
+		err = os.Rename(tempf.Name(), filename)
+		if err != nil {
+			receivedresult.ReceivedOk = false
+			receiveerr = fmt.Sprintf("Error when closing temp file: %v", err.Error())
+		}
+
+	}
+
 	resp, _ = lfs.NewJsonResponse(req.Id, receivedresult)
+	if receiveerr != "" {
+		resp.Error = receiveerr
+	}
 
 	return resp
 
+}
+
+func ensureDirExists(dir string, cfg *Config) error {
+	s, err := os.Stat(dir)
+	if err == nil {
+		if !s.IsDir() {
+			return fmt.Errorf("%v exists but isn't a dir", dir)
+		}
+	} else {
+		// Get permissions from base path & match (or default to user/group write)
+		mode := os.FileMode(0775)
+		s, err := os.Stat(cfg.BasePath)
+		if err == nil {
+			mode = s.Mode()
+		}
+		return os.MkdirAll(dir, mode)
+	}
+	return nil
 }
 
 func uploadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, path string) *lfs.JsonResponse {
@@ -76,7 +108,6 @@ func uploadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Conf
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Error determining media path. %v", err))
 	}
-	// contentaddressable fails hard when file already exists, let's be nicer
 	startresult := lfs.UploadResponse{}
 	_, staterr := os.Stat(filename)
 	if staterr != nil && os.IsNotExist(staterr) {
