@@ -1,0 +1,4 @@
+# http://docs.travis-ci.com/user/languages/go/
+language: go
+notifications:
+  email: false
