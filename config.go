@@ -14,6 +14,9 @@ import (
 	"strings"
 )
 
+// NOTE: there are some configuration options in here for binary delta support
+// these are not currently implemented in this server but are reserved for future use
+
 type Config struct {
 	BasePath           string
 	AllowAbsolutePaths bool

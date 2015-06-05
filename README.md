@@ -86,10 +86,6 @@ There are no grouping levels in the configuration file, it's just a simple name
 |---------|-------------|---------|
 |base-path|The base directory of the binary store. Paths passed as arguments will be evaluated relative to this directory, unless they're intentionally rooted (disallowed by default, see allow-absolute) |None|
 |allow-absolute-paths|Whether to allow absolute paths as arguments, i.e. rooted paths which go outside base-path. Not advisable to enable since can be a security risk.|False|
-|enable-delta-receive|Whether to support receiving binary deltas to save upload time at the expense of some CPU/Memory usage to apply them. Applying patches is not as costly as generating them which is why there are separate settings|True|
-|enable-delta-send|Whether to support generating deltas between binaries for clients to download. Generating deltas can be costly so you may want to disable this if you're finding it too much of an overhead.|True|
-|delta-cache-path|Where to store cached deltas between versions, to avoid having to recalculate them all the time|$base-path/.deltacache|
-|delta-size-limit|The maximum size file that we will attempt to use as a base for calculating a binary delta. Large files can use a lot of memory to calculate deltas on, so this limits what we attempt to use as a base. We still calculate deltas above this size but only the first X bytes are used as a base, meaning the diff can be a little less optimal at the expense of a known max memory overhead. |2147483648 (2GB)|
 
 ## Dependencies ##
 
