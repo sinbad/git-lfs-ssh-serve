@@ -16,7 +16,7 @@ func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, p
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
 	// Build destination path
-	filename, err := mediaPath(upreq.Oid, config)
+	filename, err := mediaPath(upreq.Oid, config, path)
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Error determining media path. %v", err))
 	}
@@ -104,7 +104,7 @@ func uploadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Conf
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
 	// Build destination path
-	filename, err := mediaPath(upreq.Oid, config)
+	filename, err := mediaPath(upreq.Oid, config, path)
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Error determining media path. %v", err))
 	}
@@ -128,7 +128,7 @@ func downloadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Co
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
-	filename, err := mediaPath(downreq.Oid, config)
+	filename, err := mediaPath(downreq.Oid, config, path)
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Problem determining media path: %v", err))
 	}
@@ -153,7 +153,7 @@ func download(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config,
 		// Serve() copes with converting this to stderr rather than JSON response
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
-	filename, err := mediaPath(downreq.Oid, config)
+	filename, err := mediaPath(downreq.Oid, config, path)
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Problem determining the media path: %v", err))
 	}
@@ -200,7 +200,7 @@ func batch(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, pa
 	}
 	result := lfs.BatchResponse{}
 	for _, o := range batchreq.Objects {
-		filename, err := mediaPath(o.Oid, config)
+		filename, err := mediaPath(o.Oid, config, path)
 		if err != nil {
 			return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Problem determining the media path: %v", err))
 		}
@@ -226,10 +226,10 @@ func batch(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, pa
 }
 
 // Store in the same structure as client, just under BasePath
-func mediaPath(sha string, config *Config) (string, error) {
-	path := filepath.Join(config.BasePath, sha[0:2], sha[2:4])
-	if err := os.MkdirAll(path, 0744); err != nil {
-		return "", fmt.Errorf("Error trying to create local media directory in '%s': %s", path, err)
+func mediaPath(sha string, config *Config, path string) (string, error) {
+	abspath := filepath.Join(config.BasePath, path, sha[0:2], sha[2:4])
+	if err := os.MkdirAll(abspath, 0744); err != nil {
+		return "", fmt.Errorf("Error trying to create local media directory in '%s': %s", abspath, err)
 	}
-	return filepath.Join(path, sha), nil
+	return filepath.Join(abspath, sha), nil
 }

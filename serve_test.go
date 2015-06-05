@@ -69,7 +69,7 @@ var _ = Describe("Server tests", func() {
 		wrerr = ctx.UploadObject(obj, rdr)
 		Expect(wrerr).To(BeNil(), "Should be no error on UploadObject")
 		Expect(rdr.Len()).To(BeZero(), "Server should have read all the bytes")
-		uploadDestPath, _ := mediaPath(testoid, config)
+		uploadDestPath, _ := mediaPath(testoid, config, repopath)
 		s, err := os.Stat(uploadDestPath)
 		Expect(err).To(BeNil(), "Destination file should exist")
 		Expect(s.Size()).To(BeEquivalentTo(testcontentsz), "Destination file should be the correct length")
