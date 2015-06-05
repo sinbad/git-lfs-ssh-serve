@@ -28,6 +28,10 @@
 			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
 		},
 		{
+			"ImportPath": "github.com/mitchellh/go-homedir",
+			"Rev": "7d2d8c8a4e078ce3c58736ab521a40b37a504c52"
+		},
+		{
 			"ImportPath": "github.com/onsi/ginkgo",
 			"Comment": "v1.1.0-41-g38caab9",
 			"Rev": "38caab951a9ff39f0e61294a1dbaaa074a39228b"

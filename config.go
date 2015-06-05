@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
 	"io"
 	"os"
-	"os/user"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -43,12 +43,10 @@ func LoadConfig() *Config {
 	// %PROGRAMDATA%\git-lfs\git-lfs-serve.ini
 
 	var configFiles []string
-	usr, err := user.Current()
-	if err != nil {
-		fmt.Fprint(os.Stderr, "Warning, couldn't locate home directory: %v", err.Error())
-		return NewConfig()
+	home, herr := homedir.Dir()
+	if herr != nil {
+		fmt.Fprint(os.Stderr, "Warning, couldn't locate home directory: %v", herr.Error())
 	}
-	home := usr.HomeDir
 
 	// Order is important; read global config files first then user config files so settings
 	// in the latter override the former
