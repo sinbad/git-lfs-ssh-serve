@@ -24,6 +24,8 @@ type Config struct {
 	EnableDeltaSend    bool
 	DeltaCachePath     string
 	DeltaSizeLimit     int64
+	LogFile            string
+	DebugLog           bool
 }
 
 const defaultDeltaSizeLimit int64 = 2 * 1024 * 1024 * 1024
@@ -118,6 +120,16 @@ func LoadConfig() *Config {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Invalid configuration: delta-size-limit=%v\n", v)
 			cfg.DeltaSizeLimit = defaultDeltaSizeLimit
+		}
+	}
+	if v := settings["log-file"]; v != "" {
+		cfg.LogFile = v
+	}
+	if v := strings.ToLower(settings["log-debug"]); v != "" {
+		if v == "true" {
+			cfg.DebugLog = true
+		} else if v == "false" {
+			cfg.DebugLog = false
 		}
 	}
 

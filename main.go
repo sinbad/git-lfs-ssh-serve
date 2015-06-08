@@ -2,9 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
+)
+
+var (
+	logger      *log.Logger
+	debugLogger *log.Logger
+	repoPath    string
 )
 
 func main() {
@@ -19,8 +27,8 @@ func MainImpl() int {
 	// Generic panic handler so we get stack trace
 	defer func() {
 		if e := recover(); e != nil {
-			fmt.Fprintf(os.Stderr, "git-lfs-ssh-serve panic: %v\n", e)
-			fmt.Fprint(os.Stderr, string(debug.Stack()))
+			outputf("Panic: %v\n", e)
+			outputf(string(debug.Stack()))
 			os.Exit(99)
 		}
 
@@ -28,13 +36,17 @@ func MainImpl() int {
 
 	// Get set up
 	cfg := LoadConfig()
+	err := initLogging(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "git-lfs-ssh-serve was unable to initialise logging: %v (continuing anyway)\n", err)
+	}
 
 	if cfg.BasePath == "" {
-		fmt.Fprintf(os.Stderr, "Missing required configuration setting: base-path\n")
+		outputf("Missing required configuration setting: base-path\n")
 		return 12
 	}
 	if !dirExists(cfg.BasePath) {
-		fmt.Fprintf(os.Stderr, "Invalid value for base-path: %v\nDirectory must exist.\n", cfg.BasePath)
+		outputf("Invalid value for base-path: %v\nDirectory must exist.\n", cfg.BasePath)
 		return 14
 	}
 	// Change to the base path directory so filepath.Clean() can work with relative dirs
@@ -44,28 +56,28 @@ func MainImpl() int {
 		// Create delta cache if doesn't exist, use same permissions as base path
 		s, err := os.Stat(cfg.BasePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid value for base-path: %v\nCannot stat: %v\n", cfg.BasePath, err.Error())
+			outputf("Invalid value for base-path: %v\nCannot stat: %v\n", cfg.BasePath, err.Error())
 			return 16
 		}
 		err = os.MkdirAll(cfg.DeltaCachePath, s.Mode())
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error creating delta cache path %v: %v\n", cfg.DeltaCachePath, err.Error())
+			outputf("Error creating delta cache path %v: %v\n", cfg.DeltaCachePath, err.Error())
 			return 16
 		}
 	}
 
 	// Get path argument
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "Path argument missing, cannot continue\n")
+		outputf("Path argument missing, cannot continue\n")
 		return 18
 	}
-	path := filepath.Clean(os.Args[1])
-	if filepath.IsAbs(path) && !cfg.AllowAbsolutePaths {
-		fmt.Fprintf(os.Stderr, "Path argument %v invalid, absolute paths are not allowed by this server\n", path)
+	repoPath = filepath.Clean(os.Args[1])
+	if filepath.IsAbs(repoPath) && !cfg.AllowAbsolutePaths {
+		outputf("Path argument %v invalid, absolute paths are not allowed by this server\n", repoPath)
 		return 18
 	}
 
-	return Serve(os.Stdin, os.Stdout, os.Stderr, cfg, path)
+	return Serve(os.Stdin, os.Stdout, os.Stderr, cfg, repoPath)
 }
 
 func dirExists(path string) bool {
@@ -75,4 +87,56 @@ func dirExists(path string) bool {
 	}
 
 	return fi.IsDir()
+}
+
+func initLogging(cfg *Config) error {
+	if cfg.LogFile != "" {
+
+		// O_APPEND is safe to use for multiple processes, make sure writeable by all though
+		logf, err := os.OpenFile(cfg.LogFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+		if err != nil {
+			return err
+		}
+		logger = log.New(logf, "", log.Ldate|log.Ltime)
+		if cfg.DebugLog {
+			debugLogger = logger
+		}
+	}
+	return nil
+}
+
+// Helper function to log (no need to worry about nil loggers, prefixing etc)
+func logPrintf(l *log.Logger, format string, v ...interface{}) {
+	if l != nil {
+		// Prefix message with repo root (this is cached for efficiency)
+		// We don't add this to the Logger prefix in New() because this prefixes before the timestamp & other
+		// flag-based fields, which means things don't line up nicely in the log
+		args := v
+		if repoPath != "" {
+			format = "[%v]: " + format
+			args = []interface{}{repoPath}
+			args = append(args, v...)
+		}
+		if !strings.HasSuffix(format, "\n") {
+			format += "\n"
+		}
+
+		l.Printf(format, args...)
+	}
+}
+
+// Helper function to log a regular message AND output to stderr
+func outputf(format string, v ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, v...)
+	logPrintf(logger, format, v...)
+}
+
+// Helper function to log a regular message
+func logf(format string, v ...interface{}) {
+	logPrintf(logger, format, v...)
+}
+
+// Helper function to log a debug message
+func debugf(format string, v ...interface{}) {
+	logPrintf(debugLogger, format, v...)
 }

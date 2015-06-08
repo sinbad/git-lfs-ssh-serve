@@ -15,6 +15,7 @@ func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, p
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
+	logf("Request %d: Upload %v %d\n", req.Id, upreq.Oid, upreq.Size)
 	// Build destination path
 	filename, err := mediaPath(upreq.Oid, config, path)
 	if err != nil {
@@ -35,9 +36,11 @@ func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, p
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
 	if !startresult.OkToSend {
+		logf("Upload %d: content already exists for %v\n", req.Id, upreq.Oid)
 		return nil
 	}
 
+	logf("Upload %d: waiting for content %v\n", req.Id, upreq.Oid)
 	// Next from client should be byte stream of exactly the stated number of bytes
 	// Now open temp file to write to
 	tempf, err := ioutil.TempFile("", "tempupload")
@@ -72,7 +75,10 @@ func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, p
 
 	resp, _ = lfs.NewJsonResponse(req.Id, receivedresult)
 	if receiveerr != "" {
+		logf("Upload %d: error in content for %v: %v\n", req.Id, upreq.Oid, receiveerr)
 		resp.Error = receiveerr
+	} else {
+		logf("Upload %d: content for %v received\n", req.Id, upreq.Oid)
 	}
 
 	return resp

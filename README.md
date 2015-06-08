@@ -86,6 +86,8 @@ There are no grouping levels in the configuration file, it's just a simple name
 |---------|-------------|---------|
 |base-path|The base directory of the binary store. Paths passed as arguments will be evaluated relative to this directory, unless they're intentionally rooted (disallowed by default, see allow-absolute) |None|
 |allow-absolute-paths|Whether to allow absolute paths as arguments, i.e. rooted paths which go outside base-path. Not advisable to enable since can be a security risk.|False|
+|log-file|If set, logging information will be sent to this file.|blank|
+|log-debug|If true, output debug information to log-file|false|
 
 ## Dependencies ##
 
