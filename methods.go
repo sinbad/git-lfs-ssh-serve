@@ -15,7 +15,7 @@ func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, p
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
-	logf("Request %d: Upload %v %d\n", req.Id, upreq.Oid, upreq.Size)
+	logf("Upload %d: requested %v %d\n", req.Id, upreq.Oid, upreq.Size)
 	// Build destination path
 	filename, err := mediaPath(upreq.Oid, config, path)
 	if err != nil {
@@ -109,6 +109,7 @@ func uploadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Conf
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
+	logf("UploadCheck %d: %v %d requested\n", req.Id, upreq.Oid, upreq.Size)
 	// Build destination path
 	filename, err := mediaPath(upreq.Oid, config, path)
 	if err != nil {
@@ -119,6 +120,7 @@ func uploadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Conf
 	if staterr != nil && os.IsNotExist(staterr) {
 		startresult.OkToSend = true
 	}
+	logf("UploadCheck %d: OK to send %v? %v\n", req.Id, upreq.Oid, startresult.OkToSend)
 	// Send start response immediately
 	resp, err := lfs.NewJsonResponse(req.Id, startresult)
 	if err != nil {
@@ -134,6 +136,7 @@ func downloadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Co
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
+	logf("DownloadCheck %d: %v requested\n", req.Id, downreq.Oid)
 	filename, err := mediaPath(downreq.Oid, config, path)
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Problem determining media path: %v", err))
@@ -143,8 +146,10 @@ func downloadCheck(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Co
 	if err == nil {
 		// file exists
 		result.Size = s.Size()
+		logf("DownloadCheck %d: %v response size %d\n", req.Id, downreq.Oid, result.Size)
 	} else {
 		result.Size = -1
+		logf("DownloadCheck %d: %v does not exist\n", req.Id, downreq.Oid)
 	}
 	resp, err := lfs.NewJsonResponse(req.Id, result)
 	if err != nil {
@@ -159,6 +164,7 @@ func download(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config,
 		// Serve() copes with converting this to stderr rather than JSON response
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
+	logf("Download %d: %v requested\n", req.Id, downreq.Oid)
 	filename, err := mediaPath(downreq.Oid, config, path)
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Problem determining the media path: %v", err))
@@ -180,6 +186,7 @@ func download(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config,
 	}
 	defer f.Close()
 
+	logf("Download %d: sending content for %v\n", req.Id, downreq.Oid)
 	n, err := io.Copy(out, f)
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Error copying data to output: %v", err.Error()))
@@ -193,6 +200,7 @@ func download(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config,
 	if n != s.Size() {
 		return lfs.NewJsonErrorResponse(req.Id, fmt.Sprintf("Amount of data copied disagrees (expected: %d actual: %d)", s.Size(), n))
 	}
+	logf("Download %d: successfully sent content for %v\n", req.Id, downreq.Oid)
 
 	// Don't return a response, only response is byte stream above except in error cases
 	return nil
@@ -204,6 +212,7 @@ func batch(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, pa
 	if err != nil {
 		return lfs.NewJsonErrorResponse(req.Id, err.Error())
 	}
+	logf("Batch %d: %d objects requested\n", req.Id, len(batchreq.Objects))
 	result := lfs.BatchResponse{}
 	for _, o := range batchreq.Objects {
 		filename, err := mediaPath(o.Oid, config, path)
@@ -220,6 +229,7 @@ func batch(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, pa
 			resultObj.Action = "upload"
 			resultObj.Size = o.Size
 		}
+		logf("Batch %d: %v response is %v (%d)\n", req.Id, o.Oid, resultObj.Action, resultObj.Size)
 		result.Results = append(result.Results, resultObj)
 	}
 
