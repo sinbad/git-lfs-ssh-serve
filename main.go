@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"strings"
 )
 
 var (
@@ -111,17 +110,11 @@ func logPrintf(l *log.Logger, format string, v ...interface{}) {
 		// Prefix message with repo root (this is cached for efficiency)
 		// We don't add this to the Logger prefix in New() because this prefixes before the timestamp & other
 		// flag-based fields, which means things don't line up nicely in the log
-		args := v
-		if repoPath != "" {
-			format = "[%v]: " + format
-			args = []interface{}{repoPath}
-			args = append(args, v...)
-		}
-		if !strings.HasSuffix(format, "\n") {
-			format += "\n"
-		}
+		newformat := `[%d][%v]: ` + format
+		newargs := []interface{}{os.Getpid(), repoPath}
+		newargs = append(newargs, v...)
 
-		l.Printf(format, args...)
+		l.Printf(newformat, newargs...)
 	}
 }
 
