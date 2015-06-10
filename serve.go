@@ -16,6 +16,7 @@ var methodMap = map[string]MethodFunc{
 	"DownloadCheck": downloadCheck,
 	"Download":      download,
 	"Batch":         batch,
+	"Version":       version,
 }
 
 // these methods can't return any error responses

@@ -4,28 +4,28 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/github/git-lfs/git",
-			"Comment": "v0.5.1-tracing-231-g326f8db",
-			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+			"Comment": "v0.5.1-tracing-291-ge88723d",
+			"Rev": "e88723dc97f28d397b2168549b4eb917e8dadb7a"
 		},
 		{
 			"ImportPath": "github.com/github/git-lfs/lfs",
-			"Comment": "v0.5.1-tracing-231-g326f8db",
-			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+			"Comment": "v0.5.1-tracing-291-ge88723d",
+			"Rev": "e88723dc97f28d397b2168549b4eb917e8dadb7a"
 		},
 		{
 			"ImportPath": "github.com/github/git-lfs/vendor/_nuts/github.com/cheggaaa/pb",
-			"Comment": "v0.5.1-tracing-231-g326f8db",
-			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+			"Comment": "v0.5.1-tracing-291-ge88723d",
+			"Rev": "e88723dc97f28d397b2168549b4eb917e8dadb7a"
 		},
 		{
 			"ImportPath": "github.com/github/git-lfs/vendor/_nuts/github.com/rubyist/tracerx",
-			"Comment": "v0.5.1-tracing-231-g326f8db",
-			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+			"Comment": "v0.5.1-tracing-291-ge88723d",
+			"Rev": "e88723dc97f28d397b2168549b4eb917e8dadb7a"
 		},
 		{
 			"ImportPath": "github.com/github/git-lfs/vendor/_nuts/github.com/technoweenie/go-contentaddressable",
-			"Comment": "v0.5.1-tracing-231-g326f8db",
-			"Rev": "326f8dbadf4ac7dc4171887bcc85c72e68183132"
+			"Comment": "v0.5.1-tracing-291-ge88723d",
+			"Rev": "e88723dc97f28d397b2168549b4eb917e8dadb7a"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/go-homedir",

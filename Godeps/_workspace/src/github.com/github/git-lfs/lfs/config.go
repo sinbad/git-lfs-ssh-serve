@@ -6,12 +6,13 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/github/git-lfs/git"
+	"github.com/github/git-lfs/git"
 )
 
 type Configuration struct {
@@ -234,7 +235,8 @@ func (c *Configuration) loadGitConfig() {
 		panic(fmt.Errorf("Error listing git config: %s", err))
 	}
 
-	fileOutput, err := git.Config.ListFromFile()
+	configFile := filepath.Join(LocalWorkingDir, ".gitconfig")
+	fileOutput, err := git.Config.ListFromFile(configFile)
 	if err != nil {
 		panic(fmt.Errorf("Error listing git config from file: %s", err))
 	}

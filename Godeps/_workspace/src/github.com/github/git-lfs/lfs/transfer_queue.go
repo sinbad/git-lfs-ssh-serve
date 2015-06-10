@@ -5,7 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/github/git-lfs/vendor/_nuts/github.com/cheggaaa/pb"
+	"github.com/github/git-lfs/vendor/_nuts/github.com/cheggaaa/pb"
 )
 
 type Transferable interface {

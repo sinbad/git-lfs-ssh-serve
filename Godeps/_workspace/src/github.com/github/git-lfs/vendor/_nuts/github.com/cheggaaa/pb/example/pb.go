@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/github/git-lfs/vendor/_nuts/github.com/cheggaaa/pb"
+	"github.com/github/git-lfs/vendor/_nuts/github.com/cheggaaa/pb"
 	"time"
 )
 

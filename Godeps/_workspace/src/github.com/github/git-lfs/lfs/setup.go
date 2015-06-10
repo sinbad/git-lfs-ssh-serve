@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/github/git-lfs/git"
+	"github.com/github/git-lfs/git"
 )
 
 var (

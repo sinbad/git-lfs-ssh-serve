@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sinbad/git-lfs-ssh-serve/Godeps/_workspace/src/github.com/github/git-lfs/vendor/_nuts/github.com/rubyist/tracerx"
+	"github.com/github/git-lfs/vendor/_nuts/github.com/rubyist/tracerx"
 )
 
 type sshAuthResponse struct {
@@ -98,9 +98,8 @@ func NewSshApiContext(endpoint Endpoint) ApiContext {
 
 	err := ctx.connect()
 	if err != nil {
-		// TODO - any way to log this? Seems only by returning errors & logging in commands package
-		// not usable, discard
-		ctx = nil
+		// Rejected SSH connection, use fallback
+		return nil
 	}
 	return ctx
 }
@@ -213,6 +212,12 @@ func (self *SshApiContext) connect() error {
 	self.stdout = outp
 	self.stderr = errp
 	self.bufReader = bufio.NewReader(outp)
+
+	// test that the server works
+	_, _, _, err = self.ServerVersion()
+	if err != nil {
+		return fmt.Errorf("Failure to start up full SSH server, probably not supported: %v", err)
+	}
 
 	return nil
 
@@ -458,6 +463,27 @@ func (self *SshApiContext) sendRawData(sz int64, source io.Reader) error {
 	return nil
 }
 
+type ServerVersionRequest struct {
+}
+type ServerVersionResponse struct {
+	Major int `json:"major"`
+	Minor int `json:"minor"`
+	Patch int `json:"patch"`
+}
+
+// Get the version of the SSH server
+func (self *SshApiContext) ServerVersion() (major, minor, patch int, e error) {
+	verparams := ServerVersionRequest{}
+	resp := ServerVersionResponse{}
+	err := self.doFullJSONRequestResponse("Version", &verparams, &resp)
+	if err != nil {
+		return 0, 0, 0, Errorf(err, "Error calling Version: %v", err)
+	}
+
+	return resp.Major, resp.Minor, resp.Patch, nil
+
+}
+
 type DownloadCheckRequest struct {
 	Oid string `json:"oid"`
 }
@@ -572,12 +598,11 @@ func (self *SshApiContext) UploadCheck(oid string, sz int64) (*ObjectResource, *
 		sendApiEvent(apiEventFail)
 		return nil, Errorf(err, "Error while uploading %v (while sending Upload JSON request): %v", oid, err.Error())
 	}
+	sendApiEvent(apiEventSuccess)
 	if !resp.OkToSend {
 		// File already exists, behave like HTTP 200
 		return nil, nil
 	}
-
-	sendApiEvent(apiEventSuccess)
 
 	return &ObjectResource{
 		Oid:   oid,

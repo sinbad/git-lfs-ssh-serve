@@ -9,9 +9,12 @@ import (
 )
 
 var (
-	logger      *log.Logger
-	debugLogger *log.Logger
-	repoPath    string
+	logger       *log.Logger
+	debugLogger  *log.Logger
+	repoPath     string
+	versionMajor int = 0
+	versionMinor int = 1
+	versionPatch int = 0
 )
 
 func main() {

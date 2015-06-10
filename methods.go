@@ -9,6 +9,15 @@ import (
 	"path/filepath"
 )
 
+func version(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, path string) *lfs.JsonResponse {
+	verresult := lfs.ServerVersionResponse{versionMajor, versionMinor, versionPatch}
+	resp, err := lfs.NewJsonResponse(req.Id, verresult)
+	if err != nil {
+		return lfs.NewJsonErrorResponse(req.Id, err.Error())
+	}
+	return resp
+}
+
 func upload(req *lfs.JsonRequest, in io.Reader, out io.Writer, config *Config, path string) *lfs.JsonResponse {
 	upreq := lfs.UploadRequest{}
 	err := lfs.ExtractStructFromJsonRawMessage(req.Params, &upreq)
