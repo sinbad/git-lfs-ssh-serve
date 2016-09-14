@@ -1,3 +1,7 @@
+# ABANDONED PROJECT
+
+See closed PR https://github.com/github/git-lfs/pull/378 - this is not being maintained and shouldn't be used by anyone unless we resurrect it somehow in the future. Now just for historical reference. Original README follows...
+
 # The Git-LFS SSH reference server #
 
 `git-lfs-ssh-serve` is a reference implementation of a pure SSH server for 
